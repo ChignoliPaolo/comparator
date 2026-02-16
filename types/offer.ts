@@ -9,7 +9,7 @@ export type AlimentazioneAuto =
   | "nessuno";
 
 export interface OfferInputs {
-  tipoContratto: TipoContrato;
+  tipoContratto: TipoContratto;
   // Economia (Dipendente: RAL+bonus; P.IVA: fatturato lordo)
   ral: number;
   bonus: number;
