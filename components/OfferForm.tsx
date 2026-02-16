@@ -1,16 +1,17 @@
 "use client";
 
-import type { OfferInputs } from "@/types/offer";
+import type { OfferInputs, TipoContratto, AlimentazioneAuto } from "@/types/offer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import { Select } from "@/components/ui/select";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Euro, Clock, Heart } from "lucide-react";
+import { Euro, Clock, Heart, Car } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type OfferFormProps = {
@@ -23,6 +24,15 @@ type OfferFormProps = {
 
 const sliderVariant = (v: "offerA" | "offerB") => v;
 
+const ALIMENTAZIONE_OPTIONS: { value: AlimentazioneAuto; label: string }[] = [
+  { value: "nessuno", label: "Non mi sposto in ufficio" },
+  { value: "benzina", label: "Benzina" },
+  { value: "diesel", label: "Diesel" },
+  { value: "gpl", label: "GPL" },
+  { value: "elettrico", label: "Elettrico" },
+  { value: "treno_altro", label: "Treno / altro (costo non stimato)" },
+];
+
 export function OfferForm({
   title,
   subtitle,
@@ -30,24 +40,29 @@ export function OfferForm({
   onChange,
   variant,
 }: OfferFormProps) {
-  const update = (key: keyof OfferInputs, val: number) =>
+  const update = (key: keyof OfferInputs, val: number | string) =>
     onChange({ [key]: val });
+  const isDipendente = value.tipoContratto === "dipendente";
 
   const borderClass =
     variant === "offerA"
       ? "border-l-4 border-l-offerA"
       : "border-l-4 border-l-offerB";
   const headerBg =
-    variant === "offerA" ? "bg-offerA/5" : "bg-offerB/5";
+    variant === "offerA" ? "bg-offerA/10" : "bg-offerB/10";
 
   return (
-    <Card className={cn("h-fit", borderClass)}>
+    <Card className={cn("h-fit transition-all duration-300", borderClass)}>
       <CardHeader className={headerBg}>
-        <CardTitle className="text-lg">{title}</CardTitle>
-        <p className="text-sm text-muted-foreground">{subtitle}</p>
+        <CardTitle className="text-lg font-semibold">{title}</CardTitle>
+        <p className="text-sm opacity-80">{subtitle}</p>
       </CardHeader>
       <CardContent className="pt-2">
-        <Accordion type="multiple" defaultValue={["economia", "tempo", "qualita"]} className="w-full">
+        <Accordion
+          type="multiple"
+          defaultValue={["economia", "tempo", "qualita"]}
+          className="w-full"
+        >
           <AccordionItem value="economia">
             <AccordionTrigger className="text-sm font-medium">
               <span className="flex items-center gap-2">
@@ -57,47 +72,75 @@ export function OfferForm({
             </AccordionTrigger>
             <AccordionContent className="space-y-4">
               <div>
-                <label className="text-xs text-muted-foreground">
-                  RAL (Retribuzione Annua Lorda) €
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  Tipo contratto
+                </label>
+                <Select
+                  value={value.tipoContratto}
+                  onChange={(e) =>
+                    update("tipoContratto", e.target.value as TipoContratto)
+                  }
+                >
+                  <option value="dipendente">Dipendente</option>
+                  <option value="partita_iva">Partita IVA / Freelance</option>
+                </Select>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  {isDipendente
+                    ? "RAL (Retribuzione Annua Lorda) €"
+                    : "Fatturato lordo annuo €"}
                 </label>
                 <Input
                   type="number"
                   value={value.ral || ""}
                   onChange={(e) => update("ral", Number(e.target.value) || 0)}
-                  placeholder="35000"
+                  placeholder={isDipendente ? "35000" : "40000"}
                   className="mt-1"
                 />
               </div>
+
+              {isDipendente && (
+                <>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium opacity-80">
+                      Bonus / variabile annuo €
+                    </label>
+                    <Input
+                      type="number"
+                      value={value.bonus || ""}
+                      onChange={(e) =>
+                        update("bonus", Number(e.target.value) || 0)
+                      }
+                      placeholder="0"
+                      className="mt-1"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-xs font-medium opacity-80">
+                      Buoni pasto (valore giornaliero) €
+                    </label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      value={value.buoniPastoGiornalieri ?? ""}
+                      onChange={(e) =>
+                        update(
+                          "buoniPastoGiornalieri",
+                          Number(e.target.value) || 0
+                        )
+                      }
+                      placeholder="7"
+                      className="mt-1"
+                    />
+                  </div>
+                </>
+              )}
+
               <div>
-                <label className="text-xs text-muted-foreground">
-                  Bonus/Variabile annuo €
-                </label>
-                <Input
-                  type="number"
-                  value={value.bonus || ""}
-                  onChange={(e) => update("bonus", Number(e.target.value) || 0)}
-                  placeholder="0"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground">
-                  Valore Buoni Pasto (giornaliero) €
-                </label>
-                <Input
-                  type="number"
-                  step="0.01"
-                  value={value.buoniPastoGiornalieri || ""}
-                  onChange={(e) =>
-                    update("buoniPastoGiornalieri", Number(e.target.value) || 0)
-                  }
-                  placeholder="7.00"
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <label className="text-xs text-muted-foreground">
-                  Welfare/Benefit extra (valore annuo) €
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  Welfare / benefit extra (valore annuo) €
                 </label>
                 <Input
                   type="number"
@@ -109,19 +152,27 @@ export function OfferForm({
                   className="mt-1"
                 />
               </div>
+
               <div>
-                <label className="text-xs text-muted-foreground">
-                  Tassazione stimata {value.tassazionePercent}%
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  Tassazione effettiva stimata {value.tassazionePercent}%
                 </label>
                 <Slider
                   variant={sliderVariant(variant)}
                   value={[value.tassazionePercent]}
-                  onValueChange={([v]) => update("tassazionePercent", v ?? 35)}
+                  onValueChange={([v]) =>
+                    update("tassazionePercent", v ?? 35)
+                  }
                   min={20}
-                  max={50}
+                  max={55}
                   step={1}
                   className="mt-2"
                 />
+                {!isDipendente && (
+                  <p className="mt-1 text-xs opacity-70">
+                    Per P.IVA: IRPEF + INPS + acconti (es. 40–45%)
+                  </p>
+                )}
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -130,17 +181,17 @@ export function OfferForm({
             <AccordionTrigger className="text-sm font-medium">
               <span className="flex items-center gap-2">
                 <Clock className="h-4 w-4" />
-                Tempo e Logistica
+                Tempo e spostamenti
               </span>
             </AccordionTrigger>
             <AccordionContent className="space-y-4">
               <div>
-                <label className="text-xs text-muted-foreground">
+                <label className="mb-1 block text-xs font-medium opacity-80">
                   Ore settimanali da contratto
                 </label>
                 <Input
                   type="number"
-                  value={value.oreSettimanali || ""}
+                  value={value.oreSettimanali ?? ""}
                   onChange={(e) =>
                     update("oreSettimanali", Number(e.target.value) || 40)
                   }
@@ -149,22 +200,25 @@ export function OfferForm({
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">
+                <label className="mb-1 block text-xs font-medium opacity-80">
                   Straordinari non pagati (ore/settimana)
                 </label>
                 <Input
                   type="number"
-                  value={value.straordinariNonPagati || ""}
+                  value={value.straordinariNonPagati ?? ""}
                   onChange={(e) =>
-                    update("straordinariNonPagati", Number(e.target.value) || 0)
+                    update(
+                      "straordinariNonPagati",
+                      Number(e.target.value) || 0
+                    )
                   }
                   placeholder="0"
                   className="mt-1"
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">
-                  Smart Working (giorni/settimana) {value.smartWorkingGiorni}
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  Giorni in smart working (a settimana) {value.smartWorkingGiorni}
                 </label>
                 <Slider
                   variant={sliderVariant(variant)}
@@ -179,12 +233,12 @@ export function OfferForm({
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">
-                  Tempo viaggio (min andata+ritorno/giorno)
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  Tempo viaggio (minuti andata + ritorno)
                 </label>
                 <Input
                   type="number"
-                  value={value.tempoViaggioMinuti || ""}
+                  value={value.tempoViaggioMinuti ?? ""}
                   onChange={(e) =>
                     update("tempoViaggioMinuti", Number(e.target.value) || 0)
                   }
@@ -193,21 +247,42 @@ export function OfferForm({
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">
-                  Costo pendolarismo mensile €
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  Km andata e ritorno (al giorno)
                 </label>
                 <Input
                   type="number"
-                  value={value.costoPendolarismoMensile || ""}
+                  value={value.kmAndataRitorno ?? ""}
                   onChange={(e) =>
-                    update(
-                      "costoPendolarismoMensile",
-                      Number(e.target.value) || 0
-                    )
+                    update("kmAndataRitorno", Number(e.target.value) || 0)
                   }
-                  placeholder="0"
+                  placeholder="30"
                   className="mt-1"
                 />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  <span className="flex items-center gap-1">
+                    <Car className="h-3.5 w-3" />
+                    Alimentazione (per stima costo viaggio)
+                  </span>
+                </label>
+                <Select
+                  value={value.alimentazioneAuto}
+                  onChange={(e) =>
+                    update(
+                      "alimentazioneAuto",
+                      e.target.value as AlimentazioneAuto
+                    )
+                  }
+                  className="mt-1"
+                >
+                  {ALIMENTAZIONE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </Select>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -221,7 +296,7 @@ export function OfferForm({
             </AccordionTrigger>
             <AccordionContent className="space-y-4">
               <div>
-                <label className="text-xs text-muted-foreground">
+                <label className="mb-1 block text-xs font-medium opacity-80">
                   Interesse per il progetto {value.interesseProgetto}/10
                 </label>
                 <Slider
@@ -237,8 +312,8 @@ export function OfferForm({
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">
-                  Ambiente/Cultura {value.ambienteCultura}/10
+                <label className="mb-1 block text-xs font-medium opacity-80">
+                  Ambiente / cultura {value.ambienteCultura}/10
                 </label>
                 <Slider
                   variant={sliderVariant(variant)}
@@ -253,7 +328,7 @@ export function OfferForm({
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">
+                <label className="mb-1 block text-xs font-medium opacity-80">
                   Opportunità di carriera {value.opportunitaCarriera}/10
                 </label>
                 <Slider

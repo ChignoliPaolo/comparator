@@ -1,14 +1,14 @@
 # JobMatch: Comparatore di Offerte Lavorative
 
-Applicazione web single-page per confrontare due offerte di lavoro in base a **valore orario reale** e **qualità di vita**.
+Applicazione web per confrontare due offerte di lavoro in base a **valore orario reale** e **qualità di vita**. Supporta **dipendenti** e **Partita IVA / freelance**.
 
-## Tech stack
+## Parametri (solo dati facili da sapere)
 
-- **Next.js 14** (App Router) + React 18
-- **Tailwind CSS** per lo stile
-- **Shadcn-style UI**: Card, Slider, Accordion, Input, Badge (Radix UI + Tailwind)
-- **Lucide React** per le icone
-- **Recharts** per i grafici a barre
+- **Economia:** tipo contratto (Dipendente / P.IVA), RAL o fatturato lordo, bonus (solo dipendente), buoni pasto (solo dipendente), welfare, tassazione %
+- **Tempo e spostamenti:** ore settimanali, straordinari non pagati, giorni in smart working, tempo viaggio (min), **km andata e ritorno**, **alimentazione** (benzina, diesel, GPL, elettrico, treno/altro, nessuno) per stimare il costo viaggio
+- **Qualità:** interesse progetto, ambiente/cultura, opportunità carriera (1–10)
+
+Il costo del pendolarismo è **stimato automaticamente** da km e tipo di alimentazione (non serve inserire un importo mensile).
 
 ## Avvio
 
@@ -19,28 +19,7 @@ npm run dev
 
 Apri [http://localhost:3000](http://localhost:3000).
 
-## Funzionalità
+## Tech stack
 
-- **Due colonne** (Offerta A / Offerta B) con dati in sezioni espandibili:
-  - **Economia**: RAL, bonus, buoni pasto, welfare, tassazione %
-  - **Tempo e logistica**: ore settimanali, straordinari non pagati, giorni di smart working, tempo viaggio, costo pendolarismo
-  - **Qualità**: interesse progetto, ambiente/cultura, opportunità carriera (1–10)
-
-- **Metriche calcolate in tempo reale**:
-  - Stipendio netto mensile
-  - Valore pacchetto totale (netto + benefit − costi)
-  - Ore reali impegnate (contratto + straordinari + viaggio sui giorni in ufficio)
-  - **Vera tariffa oraria** = valore mensile / ore reali mensili
-  - Happiness score (media degli slider qualità)
-
-- **Sezione analisi**:
-  - Badge “vincitore” per tariffa oraria e per happiness score
-  - Card con confronto: “Offerta A paga X €/h reali, Offerta B Y €/h reali”
-  - Grafici a barre: RAL lorda e valore reale netto mensile
-
-## Build
-
-```bash
-npm run build
-npm start
-```
+- Next.js 14, React 18, Tailwind CSS, Radix UI (Accordion, Slider), Lucide, Recharts
+- Font: Outfit (Google Fonts)
